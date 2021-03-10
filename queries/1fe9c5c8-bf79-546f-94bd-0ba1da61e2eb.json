@@ -1,0 +1,1 @@
+{"query":"query GetArticleSlugs($_v0_companyIds: [String]) {\n  companies(companyIds: $_v0_companyIds) {\n    name\n    slug\n    __typename\n  }\n}\n","variables":{"_v0_companyIds":["a468a215-20df-3c67-bc54-418bc0b7b1da"]},"operationName":"GetArticleSlugs"}
