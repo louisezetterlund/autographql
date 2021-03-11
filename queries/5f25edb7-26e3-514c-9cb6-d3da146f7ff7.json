@@ -1,1 +1,0 @@
-{"query":"query getTeasers($_v0_page: Int!) {\n  nowTeasers(page: $_v0_page) {\n    title\n    subTitle\n    type\n    date\n    url\n    imageId\n    premium\n    promoted\n    __typename\n  }\n}\n","variables":{"_v0_page":1},"operationName":"getTeasers"}
