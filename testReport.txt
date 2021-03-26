@@ -1,8 +1,0 @@
-1..6
-ok 1 - Response status code is 200
-ok 2 - Response status code is 200
-ok 3 - Response status code is 200
-ok 4 - Response status code is 200
-ok 5 - Response status code is 200
-ok 6 - Response status code is 200
-Failed 0/6 tests, 100.0% okay

@@ -1,25 +1,52 @@
 import os
 import requests
-from reportWriter import *
+import json
+import jinja2
+import config as cfg
+from SchemaSearcher import *
+from AstWalker import *
+from graphql.parser import GraphQLParser
+from CreateAssertions import *
 
-url = 'http://localhost:8000/graphql/'
+templateLoader = jinja2.FileSystemLoader(searchpath="")
+templateEnv = jinja2.Environment(loader=templateLoader)
+template = templateEnv.get_template(cfg.test_template)
 
-numberOfTests = len([name for name in os.listdir('queries/')])
+parser = GraphQLParser()
+encoder = json.JSONEncoder()
 
-report = open('testReport.txt', 'w')
-report.write('1..' + str(numberOfTests) + '\n')
-testNumber = 1
-failedTests = []
+
+types = requests.get(cfg.graphql_url, data=encoder.encode(cfg.schema_query),
+                     headers={'content-type': 'application/json'})
+
+schema = json.loads(types.content)['data']['__schema']
+searcher = SchemaSearcher(schema)
+walker = AstWalker(searcher)
+createAssertions = CreateAssertions()
+
 for f in os.listdir('queries/'):
-    payload = open('queries/'+f).read()
-    headers = {'content-type': 'application/json'}
-    response = requests.post(url, data=payload, headers=headers)
-    if response.ok:
-        testPassed(testNumber, response.status_code, report)
-    else:
-        testFailed(testNumber, response, report)
-        failedTests.append(testNumber)
-    testNumber+=1
+    id = f.split('.json')[0]
+    testName = 'Q' + ''.join(id.split('-')) + 'Test'
 
-summary(failedTests, numberOfTests, report)
-report.close()
+    testfile = open('testCases/' + testName + '.php', 'w')
+
+    payload = open('queries/' + f).read()
+    jsonPayload = "<<<'JSON'\n" + payload + "\nJSON"
+
+    dict = json.loads(payload)
+    astree = parser.parse(dict['query'])
+
+    # Dubbelkolla så definitions[0] är typ Query
+    if not type(astree.definitions[0]) == graphql.ast.Query:
+        continue
+
+    rootNode = walker.walk(astree.definitions[0])
+
+    variables = ['$a', '$b', '$c', '$d', '$e', '$f', '$g']
+
+    assertions = createAssertions.createAssertions(rootNode[0], variables)
+
+    output = template.render(className=testName, query=jsonPayload, allAssertions=assertions)
+    testfile.write(output)
+    testfile.close()
+
