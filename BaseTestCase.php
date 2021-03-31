@@ -9,6 +9,10 @@ use Symfony\Component\HttpFoundation\Request;
 
 class {{ className }} extends WebTestCase
 {
+
+    /**
+     * @runInSeparateProcess
+     */
     public function testFoo()
     {
         $client = static::createClient();
@@ -17,9 +21,16 @@ class {{ className }} extends WebTestCase
 
         $client->request('POST', '/graphql/', [], [], ["CONTENT_TYPE" => 'application/json'], $query);
         $response = $client->getResponse();
-        $responseContent = json_decode($response->getContent(), true)['data'];
 
         $this->assertEquals(200, $response->getStatusCode());
+
+        $responseArray = json_decode($response->getContent(), true);
+
+        $this->assertIsArray($responseArray, 'Response is not valid JSON');
+
+        $this->assertArrayNotHasKey('errors', $responseArray, 'Response contains errors');
+
+        $responseContent = $responseArray['data'];
 
 
         {% for assertion in allAssertions %}

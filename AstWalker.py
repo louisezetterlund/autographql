@@ -5,11 +5,22 @@ class AstWalker:
     def __init__(self, searcher):
         self.searcher = searcher
 
-    def walk(self, node, daddyObject='Query'):
+    def walk(self, node, parentCodeNode, daddyObject='Query'):
         codeNodes = []
         if node.selections:
             for child in node.selections:
+                if type(child) == graphql.ast.InlineFragment:
+                    thisNode = CodeNode(None, 'INLINE_FRAGMENT', child.type_condition.name, False)
+                    codeNodes.append(thisNode)
+                    childNodes = AstWalker.walk(self, child, thisNode, thisNode.type)
+                    if childNodes == None:
+                        return None
+                    for c in childNodes:
+                        thisNode.addChild(c)
+                    continue
+
                 if child.name == '__typename':
+                    parentCodeNode.setHasTypename()
                     continue
                 if type(node) == graphql.ast.Query:
                     nodesToBe = self.searcher.getTypes('Query', child.name)
@@ -32,8 +43,12 @@ class AstWalker:
                     codeNode = unconnectedNodes[0]
                     codeNodes.append(codeNode)
 
-                    childNodes = AstWalker.walk(self, child, nextNode.type)
+                    childNodes = AstWalker.walk(self, child, nextNode, nextNode.type)
+                    if childNodes == None:
+                        return None
                     for c in childNodes:
                         nextNode.addChild(c)
+                else:
+                    return None
 
         return codeNodes

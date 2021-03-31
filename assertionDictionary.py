@@ -1,8 +1,11 @@
 assertionDict = {
     'LIST': "assertIsArray",
     'NON_NULL': "assertNotNull",
-    'Float': 'assertIsFloat',
+    'Float': 'assertIsNumeric',
     'String': 'assertIsString',
     'Int': 'assertIsInt',
-    'Boolean': 'assertIsBool'
+    'Boolean': 'assertIsBool',
+    'OBJECT': 'assertEquals',
+    'INTERFACE': 'assertContains',
+    'ENUM': 'assertContains'
 }
