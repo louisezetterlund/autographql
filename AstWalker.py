@@ -5,7 +5,7 @@ class AstWalker:
     def __init__(self, searcher):
         self.searcher = searcher
 
-    def walk(self, node, parentCodeNode, daddyObject='Query'):
+    def walk(self, node, parentCodeNode, parentObject='Query'):
         codeNodes = []
         if node.selections:
             for child in node.selections:
@@ -25,7 +25,7 @@ class AstWalker:
                 if type(node) == graphql.ast.Query:
                     nodesToBe = self.searcher.getTypes('Query', child.name)
                 else:
-                    nodesToBe = self.searcher.getTypes(daddyObject, child.name)
+                    nodesToBe = self.searcher.getTypes(parentObject, child.name)
                 unconnectedNodes = []
 
                 if nodesToBe != None:

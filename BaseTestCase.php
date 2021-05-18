@@ -10,10 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 class {{ className }} extends WebTestCase
 {
 
-    /**
-     * @runInSeparateProcess
-     */
-    public function testFoo()
+    public function testGraphQL()
     {
         $client = static::createClient();
 

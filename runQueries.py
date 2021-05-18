@@ -21,10 +21,6 @@ types = requests.get(cfg.graphql_url, data=encoder.encode(cfg.schema_query),
 
 schema = json.loads(types.content)['data']['__schema']
 
-schemFile = open('schema.json', 'w')
-schemFile.write(encoder.encode(schema))
-schemFile.close()
-
 createDict = CreateDictionaries(schema)
 possValuesDict = createDict.possibleValuesDictionary()
 

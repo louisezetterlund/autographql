@@ -17,3 +17,11 @@ class CreateDictionaries:
                     possibleTypes.append(field['name'])
                 dictionary[type['name']] = possibleTypes
         return dictionary
+
+    def schemaCoverageDictionary(self):
+        dictionary = {}
+        for type in self.schema['types']:
+            if type['fields'] != None:
+                for field in type['fields']:
+                    dictionary[type['name'].lower()+field['name'].lower()] = False
+        return dictionary

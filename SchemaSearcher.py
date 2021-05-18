@@ -5,7 +5,7 @@ class SchemaSearcher:
 
     def getTypes(self, objectName, wantedField):
         for type in self.schema['types']:
-            if str.lower(type['name']) == str.lower(objectName):
+            if type['name'].lower() == objectName.lower():
                 for field in type['fields']:
                     if str.lower(field['name']) == str.lower(wantedField):
                         groundNode = field
