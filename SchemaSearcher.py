@@ -1,13 +1,19 @@
 class SchemaSearcher:
 
-    def __init__(self, schema):
+    def __init__(self, schema, schemaCoverageDict):
         self.schema = schema
+        self.schemaCoverageDict = schemaCoverageDict
+        self.lengthSchema = len(schemaCoverageDict)
 
     def getTypes(self, objectName, wantedField):
         for type in self.schema['types']:
             if type['name'].lower() == objectName.lower():
                 for field in type['fields']:
-                    if str.lower(field['name']) == str.lower(wantedField):
+                    if field['name'].lower() == wantedField.lower():
+                        if objectName.lower()+wantedField.lower() in self.schemaCoverageDict:
+                            self.schemaCoverageDict[objectName.lower()+wantedField.lower()] = True
+                        else:
+                            print('Something is not covered: ' + objectName + ' ' + wantedField)
                         groundNode = field
                         nodeList = []
                         # Base case for first node, which is special because it has 'type' and not 'ofType'
@@ -73,3 +79,9 @@ class SchemaSearcher:
                                     })
                         return nodeList
 
+    def calculateSchemaCoverage(self):
+        covered = 0
+        for entry in self.schemaCoverageDict:
+            if self.schemaCoverageDict[entry]:
+                covered+=1
+        return covered/self.lengthSchema
