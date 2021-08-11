@@ -36,7 +36,7 @@ class CreateAssertions:
                     if objectHasTypename:
                         listWithAssertions.append("$this->" + assertionDict[
                             kind] + "('" + type +"' , $responseContent" + path + myPath + "['__typename']);")
-                elif kind == 'INTERFACE':
+                elif kind == 'INTERFACE' or kind == 'UNION':
                     if objectHasTypename:
                         listWithAssertions.append("$this->" + assertionDict[
                             kind] + "($responseContent" + path + myPath + "['__typename'], " + str(self.possValuesDict[type]) + ");")
@@ -77,7 +77,7 @@ class CreateAssertions:
                     if objectHasTypename:
                         listWithAssertions.append("$this->" + assertionDict[
                             kind] + "('" + type +"' , $responseContent" + path + myPath + "['__typename']);")
-                elif kind == 'INTERFACE':
+                elif kind == 'INTERFACE' or kind == 'UNION':
                     if objectHasTypename:
                         listWithAssertions.append("$this->" + assertionDict[
                             kind] + "($responseContent" + path + myPath + "['__typename'], " + str(self.possValuesDict[type]) + ");")

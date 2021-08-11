@@ -32,10 +32,14 @@ def main():
     parser = GraphQLParser()
     encoder = json.JSONEncoder()
 
-    types = requests.get(cfg.graphql_url, data=encoder.encode(cfg.schema_query),
+    types = requests.post(cfg.graphql_url, data=encoder.encode(cfg.schema_query),
                          headers={'content-type': 'application/json'})
 
     schema = json.loads(types.content)['data']['__schema']
+
+    #jsonschema = json.dumps(schema)
+    #jsonFile = open('schema.json', 'w+')
+    #jsonFile.write(jsonschema)
 
     createDict = CreateDictionaries(schema)
     possValuesDict = createDict.possibleValuesDictionary()
@@ -47,12 +51,17 @@ def main():
 
     for f in os.listdir('queries/'):
         id = f.split('.json')[0]
+        if id == '.DS_Store':
+            continue
         testName = 'Q' + ''.join(id.split('-')) + 'Test'
-
         payload = open('queries/' + f).read()
         jsonPayload = "<<<'JSON'\n" + payload + "\nJSON"
 
-        dict = json.loads(payload)
+        try:
+            dict = json.loads(payload)
+        except:
+            print("Couldn't load " + id)
+            continue
 
         try:
             astree = parser.parse(dict['query'])
@@ -60,18 +69,35 @@ def main():
             print('Something is wrong with test ' + id)
             continue
 
-        # Dubbelkolla så definitions[0] är typ Query
-        if not type(astree.definitions[0]) == graphql.ast.Query:
+        mutation = False
+        query = None
+
+        # Checking types in query
+        for tree in astree.definitions:
+            if type(tree) == graphql.ast.Mutation:
+                print(id + ' contains mutations and will not be used')
+                mutation = True
+                break
+            elif type(tree) == graphql.ast.FragmentDefinition:
+                createDict.createFragmentDictionary(tree, walker)
+                walker.fragmentDictionary = createDict.fragmentDictionary
+            elif type(tree) == graphql.ast.Query or type(tree) == None:
+                query = tree
+
+
+        # Skipping current query if contains mutations
+        if mutation:
             continue
 
-        rootNode = walker.walk(astree.definitions[0], None)
+        rootNode = walker.walk(query, None)
 
         if moreDetails:
             createSchemaDict = CreateDictionaries(schema)
             individualSchemaCoverageDict = createSchemaDict.schemaCoverageDictionary()
             schemaSearcher = SchemaSearcher(schema, individualSchemaCoverageDict)
             schemaWalker = AstWalker(schemaSearcher)
-            schemaWalker.walk(astree.definitions[0], None)
+            schemaWalker.fragmentDictionary = createDict.fragmentDictionary
+            schemaWalker.walk(query, None)
             with open('individualSchemaCoverage.csv', 'a') as csvfile:
                 csvwriter = csv.writer(csvfile)
                 csvwriter.writerow([id, schemaSearcher.calculateSchemaCoverage()])
@@ -80,8 +106,13 @@ def main():
         variables = ['$a', '$b', '$c', '$d', '$e', '$f', '$g']
 
         try:
-            assertions = createAssertions.createAssertions(rootNode[0], variables)
-            output = template.render(className=testName, query=jsonPayload, allAssertions=assertions)
+            assertions = []
+            for node in rootNode:
+                nodeAssertions = createAssertions.createAssertions(node, variables)
+                for line in nodeAssertions:
+                    assertions.append(line)
+            output = template.render(className=testName, query=jsonPayload,
+                                     allAssertions=assertions, graphQLURL = cfg.graphql_url, authToken = cfg.authorization_token)
             testfile = open('testCases/' + testName + '.php', 'w')
             testfile.write(output)
             testfile.close()
@@ -94,7 +125,9 @@ def main():
             for line in schemaCoverageDict:
                 csvwriter.writerow([line + ': ' + str(schemaCoverageDict[line])])
 
-    print("The schema coverage for the generated test suite is: " + str(searcher.calculateSchemaCoverage()*100) + ' %')
+    print("The schema coverage for the generated test suite is: " + str(searcher.calculateSchemaCoverage()*100) + ' %' +
+          " where mutations are: " + str(searcher.calculateMutations()*100) + ' % of the schema and input objects are: ' +
+          str(searcher.calculateInputTypes()*100) + ' % of the schema.')
 
 if __name__ == '__main__':
     main()

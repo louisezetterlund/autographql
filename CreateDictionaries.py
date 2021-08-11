@@ -1,7 +1,9 @@
+from CodeNode import *
 class CreateDictionaries:
 
     def __init__(self, schema):
         self.schema = schema
+        self.fragmentDictionary = {}
 
     def possibleValuesDictionary(self):
         dictionary = {}
@@ -23,5 +25,17 @@ class CreateDictionaries:
         for type in self.schema['types']:
             if type['fields'] != None:
                 for field in type['fields']:
-                    dictionary[type['name'].lower()+field['name'].lower()] = False
+                    dictionary[type['name'].lower()+field['name'].lower()] = [0,False]
         return dictionary
+
+    def createFragmentDictionary(self, tree, walker):
+        fragmentName = tree.name
+        parentNode = CodeNode(None, 'OBJECT', tree.type_condition.name, False)
+        for child in tree.selections:
+            if child.name == '__typename':
+                parentNode.setHasTypename()
+                break
+        rootNode = walker.walk(tree, parentNode, parentNode.type)
+        for child in rootNode:
+            parentNode.addChild(child)
+        self.fragmentDictionary[fragmentName] = parentNode

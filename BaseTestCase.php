@@ -4,24 +4,24 @@ declare(strict_types=1);
 namespace GraphQL;
 
 use PHPUnit\Framework\TestCase;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\HttpFoundation\Request;
 
-class {{ className }} extends WebTestCase
+class {{ className }} extends TestCase
 {
 
     public function testGraphQL()
     {
-        $client = static::createClient();
+        $client = new \GuzzleHttp\Client();
 
         $query = {{ query }};
 
-        $client->request('POST', '/graphql/', [], [], ["CONTENT_TYPE" => 'application/json'], $query);
-        $response = $client->getResponse();
-
+        {% if authToken != '' %}
+        $response = $client->request('POST', '{{ graphQLURL }}', ['body' => $query, 'headers' => ['Content-Type' => 'application/json', 'Authorization' => '{{ authToken }}']]);
+        {% else %}
+        $response = $client->request('POST', graphQLURL, ['body' => $query, 'headers' => ['Content-Type' => 'application/json']]);
+        {% endif %}
         $this->assertEquals(200, $response->getStatusCode());
 
-        $responseArray = json_decode($response->getContent(), true);
+        $responseArray = json_decode((string)$response->getBody(), true);
 
         $this->assertIsArray($responseArray, 'Response is not valid JSON');
 

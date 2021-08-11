@@ -11,7 +11,8 @@ class SchemaSearcher:
                 for field in type['fields']:
                     if field['name'].lower() == wantedField.lower():
                         if objectName.lower()+wantedField.lower() in self.schemaCoverageDict:
-                            self.schemaCoverageDict[objectName.lower()+wantedField.lower()] = True
+                            self.schemaCoverageDict[objectName.lower()+wantedField.lower()][0] += 1
+                            self.schemaCoverageDict[objectName.lower()+wantedField.lower()][1] = True
                         else:
                             print('Something is not covered: ' + objectName + ' ' + wantedField)
                         groundNode = field
@@ -82,6 +83,31 @@ class SchemaSearcher:
     def calculateSchemaCoverage(self):
         covered = 0
         for entry in self.schemaCoverageDict:
-            if self.schemaCoverageDict[entry]:
+            if self.schemaCoverageDict[entry][1]:
                 covered+=1
         return covered/self.lengthSchema
+
+    def calculateMutations(self):
+        total = 0
+        for type in self.schema['types']:
+            if type['name'].lower() == 'mutation':
+                total = len(type['fields'])
+                break
+        return total/self.lengthSchema
+
+
+    def calculateInputTypes(self):
+        total = 0
+        for type in self.schema['types']:
+            if type['kind'] == 'INPUT_OBJECT':
+                total += 1
+        return total/self.lengthSchema
+
+    def calculateObjects(self):
+        total = 0
+        for type in self.schema['types']:
+            if type['name'] == 'Query' or '__' in type['name']:
+                continue
+            if type['kind'] == 'OBJECT':
+                total += 1
+        return total
