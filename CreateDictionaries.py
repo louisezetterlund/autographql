@@ -23,7 +23,7 @@ class CreateDictionaries:
     def schemaCoverageDictionary(self):
         dictionary = {}
         for type in self.schema['types']:
-            if type['fields'] != None:
+            if type['fields'] != None and not '_' in type['name']:
                 for field in type['fields']:
                     dictionary[type['name'].lower()+field['name'].lower()] = [0,False]
         return dictionary
@@ -36,6 +36,10 @@ class CreateDictionaries:
                 parentNode.setHasTypename()
                 break
         rootNode = walker.walk(tree, parentNode, parentNode.type)
+        # This means that this fragment contains a fragment which haven't been defined yet
+        if not rootNode:
+            return False
         for child in rootNode:
             parentNode.addChild(child)
         self.fragmentDictionary[fragmentName] = parentNode
+        return True

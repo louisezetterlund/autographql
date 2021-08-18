@@ -79,8 +79,12 @@ def main():
                 mutation = True
                 break
             elif type(tree) == graphql.ast.FragmentDefinition:
-                createDict.createFragmentDictionary(tree, walker)
-                walker.fragmentDictionary = createDict.fragmentDictionary
+                success = createDict.createFragmentDictionary(tree, walker)
+                if success:
+                    walker.fragmentDictionary = createDict.fragmentDictionary
+                else:
+                    astree.definitions.append(tree)
+                    continue
             elif type(tree) == graphql.ast.Query or type(tree) == None:
                 query = tree
 

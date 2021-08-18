@@ -20,10 +20,13 @@ class AstWalker:
                         thisNode.addChild(c)
                     continue
                 elif type(child) == graphql.ast.FragmentSpread:
-                    for fragmentChild in self.fragmentDictionary[child.name].children:
-                        codeNodes.append(fragmentChild)
-                    if self.fragmentDictionary[child.name].hasTypename:
-                        parentCodeNode.setHasTypename()
+                    try:
+                        for fragmentChild in self.fragmentDictionary[child.name].children:
+                            codeNodes.append(fragmentChild)
+                        if self.fragmentDictionary[child.name].hasTypename:
+                            parentCodeNode.setHasTypename()
+                    except:
+                        return False
                     continue
 
                 if child.name == '__typename':
@@ -35,6 +38,8 @@ class AstWalker:
                         nodesToBe[0]['name'] = child.alias
                 else:
                     nodesToBe = self.searcher.getTypes(parentObject, child.name)
+                    if child.alias:
+                        nodesToBe[0]['name'] = child.alias
                 unconnectedNodes = []
 
                 if nodesToBe != None:
@@ -55,6 +60,8 @@ class AstWalker:
                     childNodes = AstWalker.walk(self, child, nextNode, nextNode.type)
                     if childNodes == None:
                         return None
+                    elif childNodes == False:
+                        return False
                     for c in childNodes:
                         nextNode.addChild(c)
                 else:
