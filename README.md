@@ -37,3 +37,4 @@
 }
 ```
 - [Install PHPUnit](https://phpunit.de/index.html) and run `composer update`
+- Run tests from `saleor-platform/saleor/` with `<dir-with-tests>/vendor/bin/phpunit <dir-with-tests>/`
