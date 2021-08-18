@@ -7,6 +7,7 @@
 # Experiments with [Saleor](https://github.com/mirumee/saleor)
 
 - Set up saleor logging configurations, [like so](https://github.com/louisezetterlund/saleor-platform)
+- Create a [JWT token](https://docs.saleor.io/docs/2.9.0/api/authenticate/#creating-a-jwt-token) for Saleor
 - Generate and execute workloads! ✨
 
 ## Fetch queries
@@ -17,6 +18,8 @@
 ## Generate tests with AutoGraphQL
 - Create directory `./testCases/`
 - Make sure the queries are saved in `./queries/`
+- Create a `./JWT-token.txt` with your Saleor JWT token
+- `pip3 install -r requirements.txt`
 - `python3 runQueries.py True`
 
 ## Run generated tests

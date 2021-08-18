@@ -1,5 +1,5 @@
 .idea
 __pycache__
-*config.py
+JWT-token.txt
 .DS_Store
 redeyeresults
