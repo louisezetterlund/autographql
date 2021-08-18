@@ -12,7 +12,7 @@
 ## Fetch queries
 - `docker exec -it <container-id-for-saleor-platform_api_1> /bin/bash`
 - `python3 manage.py fetch_all_query_entries`
-- `docker cp d63fc617e705:/app/queries /path/in/host/queries/`
+- `docker cp <container-id-for-saleor-platform_api_1>:/app/queries /path/in/host/queries/`
 
 ## Generate tests with AutoGraphQL
 - Create directory `./testCases/`
