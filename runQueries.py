@@ -22,7 +22,7 @@ def main():
               "called 'schemaCoverageDictionary.csv'.")
         with open('individualSchemaCoverage.csv', 'w') as csvfile:
             csvwriter = csv.writer(csvfile)
-            csvwriter.writerow(['Testid','Individual coverage'])
+            csvwriter.writerow(['testID','individualCoverage'])
 
 
     templateLoader = jinja2.FileSystemLoader(searchpath="")
@@ -104,7 +104,7 @@ def main():
             schemaWalker.walk(query, None)
             with open('individualSchemaCoverage.csv', 'a') as csvfile:
                 csvwriter = csv.writer(csvfile)
-                csvwriter.writerow([id, schemaSearcher.calculateSchemaCoverage()])
+                csvwriter.writerow([id, (schemaSearcher.calculateSchemaCoverage() * 100)])
 
 
         variables = ['$a', '$b', '$c', '$d', '$e', '$f', '$g']
@@ -126,8 +126,9 @@ def main():
     if moreDetails:
         with open('schemaCoverageDictionary.csv', 'w') as csvfile:
             csvwriter = csv.writer(csvfile)
+            csvwriter.writerow(['schemaTuple', 'visited', 'timesVisited'])
             for line in schemaCoverageDict:
-                csvwriter.writerow([line + ': ' + str(schemaCoverageDict[line])])
+                csvwriter.writerow([line, schemaCoverageDict[line][1], schemaCoverageDict[line][0]])
 
     print("The schema coverage for the generated test suite is: " + str(searcher.calculateSchemaCoverage()*100) + ' %' +
           " where mutations are: " + str(searcher.calculateMutations()*100) + ' % of the schema and input objects are: ' +
