@@ -75,9 +75,9 @@ def main():
         # Checking types in query
         for tree in astree.definitions:
             if type(tree) == graphql.ast.Mutation:
-                print(id + ' contains mutations and will not be used')
-                mutation = True
-                break
+                #print(id + ' contains mutations and will not be used')
+                query = tree
+                #break
             elif type(tree) == graphql.ast.FragmentDefinition:
                 success = createDict.createFragmentDictionary(tree, walker)
                 if success:
