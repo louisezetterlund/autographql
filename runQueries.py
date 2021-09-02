@@ -72,13 +72,22 @@ def main():
         mutation = False
         query = None
 
-        # Checking types in query
+        # Checking there are no mutations in query
         for tree in astree.definitions:
             if type(tree) == graphql.ast.Mutation:
                 print(id + ' contains mutations and will not be used')
                 mutation = True
                 break
-            elif type(tree) == graphql.ast.FragmentDefinition:
+
+        # Skipping current query if contains mutations
+        if mutation:
+            continue
+
+        searcher.setId(id)
+
+        # Checking other types in query
+        for tree in astree.definitions:
+            if type(tree) == graphql.ast.FragmentDefinition:
                 success = createDict.createFragmentDictionary(tree, walker)
                 if success:
                     walker.fragmentDictionary = createDict.fragmentDictionary
@@ -87,11 +96,6 @@ def main():
                     continue
             elif type(tree) == graphql.ast.Query or type(tree) == None:
                 query = tree
-
-
-        # Skipping current query if contains mutations
-        if mutation:
-            continue
 
         rootNode = walker.walk(query, None)
 
@@ -126,9 +130,9 @@ def main():
     if moreDetails:
         with open('schemaCoverageDictionary.csv', 'w') as csvfile:
             csvwriter = csv.writer(csvfile)
-            csvwriter.writerow(['schemaTuple', 'visited', 'timesVisited'])
+            csvwriter.writerow(['schemaTuple', 'visited', 'timesVisited', 'id'])
             for line in schemaCoverageDict:
-                csvwriter.writerow([line, schemaCoverageDict[line][1], schemaCoverageDict[line][0]])
+                csvwriter.writerow([line, schemaCoverageDict[line][1], schemaCoverageDict[line][0], schemaCoverageDict[line][2]])
 
     print("The schema coverage for the generated test suite is: " + str(searcher.calculateSchemaCoverage()*100) + ' %' +
           " where mutations are: " + str(searcher.calculateMutations()*100) + ' % of the schema and input objects are: ' +

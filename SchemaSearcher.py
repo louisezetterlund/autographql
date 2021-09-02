@@ -4,6 +4,7 @@ class SchemaSearcher:
         self.schema = schema
         self.schemaCoverageDict = schemaCoverageDict
         self.lengthSchema = len(schemaCoverageDict)
+        self.currentId = 'id'
 
     def getTypes(self, objectName, wantedField):
         for type in self.schema['types']:
@@ -13,6 +14,7 @@ class SchemaSearcher:
                         if objectName.lower()+wantedField.lower() in self.schemaCoverageDict:
                             self.schemaCoverageDict[objectName.lower()+wantedField.lower()][0] += 1
                             self.schemaCoverageDict[objectName.lower()+wantedField.lower()][1] = True
+                            self.schemaCoverageDict[objectName.lower()+wantedField.lower()][2] = self.currentId
                         else:
                             print('Something is not covered: ' + objectName + ' ' + wantedField)
                         groundNode = field
@@ -111,3 +113,6 @@ class SchemaSearcher:
             if type['kind'] == 'OBJECT':
                 total += 1
         return total
+
+    def setId(self, id):
+        self.currentId = id

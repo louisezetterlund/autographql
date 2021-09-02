@@ -25,7 +25,7 @@ class CreateDictionaries:
         for type in self.schema['types']:
             if type['fields'] != None and not '_' in type['name']:
                 for field in type['fields']:
-                    dictionary[type['name'].lower()+field['name'].lower()] = [0,False]
+                    dictionary[type['name'].lower()+field['name'].lower()] = [0,False,'']
         return dictionary
 
     def createFragmentDictionary(self, tree, walker):

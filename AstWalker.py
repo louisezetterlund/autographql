@@ -34,7 +34,7 @@ class AstWalker:
                     continue
                 if type(node) == graphql.ast.Query:
                     nodesToBe = self.searcher.getTypes('Query', child.name)
-                    if child.alias:
+                    if child.alias and nodesToBe:
                         nodesToBe[0]['name'] = child.alias
                 else:
                     nodesToBe = self.searcher.getTypes(parentObject, child.name)
